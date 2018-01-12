@@ -12,9 +12,7 @@ def menu():
 
 
 def get_list():
-    nm = nmap.PortScanner()
-    return nm.all_hosts()
-    #return [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")]
+    return [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")]
 
 
 #def Get_Info():
