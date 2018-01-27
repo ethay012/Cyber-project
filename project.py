@@ -55,7 +55,7 @@ def tunnel(client, ip):
         print stdout
         print "Connection successful"
     except socket.error:
-        tunnel(client, '192.168.56.1')
+        tunnel(client, ip)
 
 
 def handle(ans, client):
