@@ -5,7 +5,7 @@ import random
 import os
 import paramiko
 import re
-
+from sshtunnel import SSHTunnelForwarder
 
 default = [("ubuntu", ""), ("admin", "password")]
 
@@ -46,21 +46,28 @@ def init_tunnel():
     ssh = paramiko.SSHClient()
     pat = re.compile("Linux")
     ip = generate_ip()
-    ops = os.system('nmap -O -Pn ' + ip)
-    while re.search(pat, str(ops)) != None:
-        ip = generate_ip()
-    tunnel(ssh, ip)
+    #ops = os.system('nmap -O -Pn ' + ip)
+    #while re.search(pat, str(ops)) is not None:
+     #   ip = generate_ip()
+    tunnel(ssh, 'ip')
     ssh.close()
 
 
 def tunnel(client, ip):
-    try:
-        client.connect(ip, port=22, username=default[0][0], password=[0][0])
-        stdin, stdout, stderr = client.exec_command('ls')
-        print stdout
+    """try:
+        client.connect(ip, username=default[0][0], password=[0][0])
         print "Connection successful"
+        trans = client.get_transport()
+        trans.open_channel("forwarded-tcpip", dest_addr=('serverIP',8000), src_addr=('localhost'),8000)
     except socket.error:
-        tunnel(client, ip)
+        tunnel(client, '1ip')"""
+    host = SSHTunnelForwarder(
+        ip,
+        ssh_username=default[0][0],
+        ssh_password=default[0][1],
+        remote_bind_address=('127.0.0.1', 443)
+    )
+    host.stop()
 
 
 def handle(ans, client):
