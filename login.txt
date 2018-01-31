@@ -1,0 +1,4 @@
+ubuntu, -
+admin, admin
+admin, -
+admin, password
