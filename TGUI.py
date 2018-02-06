@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from Tkinter import *
-import project_2.0
+import project_new
 
 
 def main():
     def click():
-        project.known_ip(ip.get())
+        project_new.known_ip(ip.get())
 
     def ran():
-        project.ran_ip()
+        project_new.ran_ip()
 
     def cw():
         root.destroy()
