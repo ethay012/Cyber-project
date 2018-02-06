@@ -59,28 +59,29 @@ def check_if_up(ip):
     return result
 
 
-def init_tunnel():
-    ans = raw_input("Generate ip [Y/N]? ")
+def ran_ip():
+    ip = generate_ip()
     pat = re.compile("Linux")
-    if ans.upper() == 'Y':
+    ops = ""
+    if check_if_up(ip):
+        ops = os.system('nmap -O --osscan-guess ' + ip)
+    while re.search(pat, str(ops)) is None:
         ip = generate_ip()
-        ops = ""
         if check_if_up(ip):
             ops = os.system('nmap -O --osscan-guess ' + ip)
-        while re.search(pat, str(ops)) is None:
-            ip = generate_ip()
-            if check_if_up(ip):
-                ops = os.system('nmap -O --osscan-guess ' + ip)
-    else:
-        ip = raw_input("Insert ip: ")
-        ops = ""
+    tunnel(ip)
+
+
+def known_ip(ip):
+    pat = re.compile("Linux")
+    ops = ""
+    if check_if_up(ip):
+        ops = os.system('nmap -O --osscan-guess ' + ip)
+    while re.search(pat, str(ops)) is None:
+        ip = raw_input("Insert another ip: ")
         if check_if_up(ip):
             ops = os.system('nmap -O --osscan-guess ' + ip)
-        while re.search(pat, str(ops)) is None:
-            ip = raw_input("Insert another ip: ")
-            if check_if_up(ip):
-                ops = os.system('nmap -O --osscan-guess ' + ip)
-    return ip
+    tunnel(ip)
 
 
 def handle(ans):
@@ -89,7 +90,7 @@ def handle(ans):
     if ans == 2:
         print get_info()
     if ans == 3:
-        tunnel()
+        known_ip(ip="0")
 
 
 def check(ans):
@@ -149,8 +150,7 @@ def tunnel_putty_link(name, password, ip):
         print "An error occured: " + str(error)
 
 
-def tunnel():
-    ip = init_tunnel()
+def tunnel(ip):
     name, password = find_name_and_password(ip)
     open_firefox()
     tunnel_putty_link(name, password, ip)
