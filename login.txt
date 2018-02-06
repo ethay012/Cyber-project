@@ -1,9 +1,6 @@
-root,
 root,1234
 root,password
-ubuntu,
 ubuntu,ubuntu
 ubuntu,password
 admin,admin
-admin,
 admin,password

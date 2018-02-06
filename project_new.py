@@ -110,8 +110,7 @@ def install_firefox_proxy(proxy_host, proxy_port):
 def find_name_and_password(ip):
     correct = ()
     with open(NAMES_PASSWORDS_FILE, 'r') as usr_pass_file:
-        usr_pass_contents = usr_pass_file.read()
-        for line in usr_pass_contents:
+        for line in usr_pass_file:
             usr_pass = line.split(',')
             name = usr_pass[0]
             password = usr_pass[1]
