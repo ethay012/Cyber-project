@@ -84,13 +84,23 @@ def known_ip(ip):
     tunnel(ip)
 
 
+"""def init_tunnel():
+    ans = raw_input("Generate ip [Y/N]? ")
+    pat = re.compile("Linux")
+    if ans.upper() == 'Y':
+        ran_ip(pat)
+    else:
+        known_ip()
+    return ip"""
+
+
 def handle(ans):
     if ans == 1:
         print get_list()
     if ans == 2:
         print get_info()
     if ans == 3:
-        known_ip(ip="0")
+        known_ip(ip=raw_input("insert ip: "))
 
 
 def check(ans):
@@ -110,7 +120,8 @@ def install_firefox_proxy(proxy_host, proxy_port):
 def find_name_and_password(ip):
     correct = ()
     with open(NAMES_PASSWORDS_FILE, 'r') as usr_pass_file:
-        for line in usr_pass_file:
+        usr_pass_contents = usr_pass_file.read()
+        for line in usr_pass_contents:
             usr_pass = line.split(',')
             name = usr_pass[0]
             password = usr_pass[1]
@@ -142,11 +153,24 @@ def open_firefox():
     driver.get('about:config')
 
 
-def tunnel_putty_link(name, password, ip):
+"""def tunnel_putty_link(name, password, ip):
     try:
         subprocess.call("plink -D %s -pw %s %s@%s" % (str(PROXY_PORT_NUMBER), password, name, ip))
     except Exception as error:
-        print "An error occured: " + str(error)
+        print "An error occured: " + str(error)"""
+
+
+def tunnel_putty_link(name, password, ip):
+    sshp = subprocess.Popen(['ssh'],
+                            ip,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            universal_newlines=True,
+                            bufsize=0)
+    sshp.stdin.write("ls .\n")
+    sshp.stdin.write("echo END\n")
+    sshp.stdin.write("uptime\n")
+    sshp.stdin.write("echo END\n")
 
 
 def tunnel(ip):
