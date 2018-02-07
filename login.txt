@@ -1,5 +1,6 @@
 root,1234
 root,password
+admin,PoopyMonkeys
 ubuntu,ubuntu
 ubuntu,password
 admin,admin
