@@ -181,6 +181,9 @@ def find_name_and_password(ip):
     to check multiple username and password pairs for given ip
     returns a list of tuples
     """
+    if not os.path.exists(r"logs"):
+        os.mkdir(r'logs')
+
     names_pass = get_name_pass(ip)
 
     start = time.time()
